@@ -1,0 +1,76 @@
+{
+  "test_run": "pipeline_tests",
+  "total": 17,
+  "passed": 17,
+  "failed": 0,
+  "tests": [
+    {
+      "name": "test_alpaca_with_input",
+      "status": "PASS"
+    },
+    {
+      "name": "test_alpaca_without_input",
+      "status": "PASS"
+    },
+    {
+      "name": "test_llama2_format",
+      "status": "PASS"
+    },
+    {
+      "name": "test_mistral_format",
+      "status": "PASS"
+    },
+    {
+      "name": "test_invalid_template_raises",
+      "status": "PASS"
+    },
+    {
+      "name": "test_generate_creates_files",
+      "status": "PASS"
+    },
+    {
+      "name": "test_train_correct_count",
+      "status": "PASS"
+    },
+    {
+      "name": "test_examples_have_required_fields",
+      "status": "PASS"
+    },
+    {
+      "name": "test_rouge_identical_scores_1",
+      "status": "PASS"
+    },
+    {
+      "name": "test_rouge_no_overlap_zero",
+      "status": "PASS"
+    },
+    {
+      "name": "test_rouge_partial_overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "test_rouge2_leq_rouge1",
+      "status": "PASS"
+    },
+    {
+      "name": "test_rouge_empty_pred_zero",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bleu_identical_high_score",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bleu_no_overlap_zero",
+      "status": "PASS"
+    },
+    {
+      "name": "test_bleu4_leq_bleu1",
+      "status": "PASS"
+    },
+    {
+      "name": "test_model_card_generates",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+# ============================================================
+#  LLM Fine-Tuning Pipeline — Master Configuration
+#  Supports: Llama 2, Mistral, Falcon, GPT-NeoX
+#  Modes: LoRA (FP16) | QLoRA (4-bit NF4)
+# ============================================================
+
+# ── Base Model ────────────────────────────────────────────
+model:
+  name: "meta-llama/Llama-2-7b-hf"           # HuggingFace model ID
+  # name: "mistralai/Mistral-7B-v0.1"        # Alternative: Mistral 7B
+  # name: "tiiuae/falcon-7b"                 # Alternative: Falcon 7B
+  revision: "main"
+  trust_remote_code: false
+  torch_dtype: "float16"                      # float16 | bfloat16 | float32
+  device_map: "auto"                          # auto | cuda:0 | cpu
+
+# ── Quantization (QLoRA) ─────────────────────────────────
+quantization:
+  enabled: true                               # Set false for standard LoRA (FP16)
+  bits: 4                                     # 4 | 8
+  quant_type: "nf4"                           # nf4 | fp4
+  double_quant: true                          # Nested quantization (saves ~0.4 bits/param)
+  compute_dtype: "float16"                    # Computation dtype during forward/backward
+
+# ── LoRA Adapter Configuration ────────────────────────────
+lora:
+  r: 16                                       # Rank — higher = more capacity (8/16/32/64)
+  alpha: 32                                   # Alpha — scaling factor (usually 2x rank)
+  dropout: 0.05                               # LoRA dropout for regularization
+  bias: "none"                                # none | all | lora_only
+  task_type: "CAUSAL_LM"                      # CAUSAL_LM | SEQ_2_SEQ_LM | SEQ_CLS
+  target_modules:                             # Which layers to apply LoRA to
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+# ── Dataset Configuration ─────────────────────────────────
+data:
+  train_file: "data/train.jsonl"
+  val_file: "data/val.jsonl"
+  test_file: "data/test.jsonl"
+  text_column: "text"                         # Column name containing text
+  max_seq_length: 2048                        # Max token length (truncates longer)
+  dataset_format: "instruction"               # instruction | text | chat
+  prompt_template: "alpaca"                   # alpaca | chatml | llama2 | mistral
+  val_split_ratio: 0.1                        # Used if no val_file provided
+  pack_sequences: true                        # Pack short sequences to fill context
+
+# ── Training Hyperparameters ─────────────────────────────
+training:
+  output_dir: "outputs/checkpoints"
+  num_train_epochs: 3
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4             # Effective batch = 4 * 4 = 16
+  gradient_checkpointing: true               # Trades compute for memory
+  learning_rate: 2.0e-4
+  lr_scheduler_type: "cosine"               # linear | cosine | cosine_with_restarts
+  warmup_ratio: 0.03
+  weight_decay: 0.001
+  max_grad_norm: 1.0
+  fp16: true                                # Mixed precision (use bf16 on A100)
+  bf16: false
+  optim: "paged_adamw_32bit"               # paged_adamw_32bit | adamw_torch | lion
+  logging_steps: 10
+  eval_steps: 100
+  save_steps: 100
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  report_to: "wandb"                        # wandb | tensorboard | none
+  run_name: "llama2-7b-qlora-domain"
+  seed: 42
+  group_by_length: true                     # Group similar-length sequences → faster training
+
+# ── Evaluation Configuration ─────────────────────────────
+evaluation:
+  metrics:
+    - "rouge"                               # ROUGE-1, ROUGE-2, ROUGE-L
+    - "bleu"                                # BLEU-1 to BLEU-4
+    - "bertscore"                           # BERTScore F1
+    - "perplexity"                          # Language modeling perplexity
+  generation:
+    max_new_tokens: 512
+    temperature: 0.1
+    top_p: 0.95
+    do_sample: false                        # Greedy for eval, sample for generation
+    repetition_penalty: 1.1
+  num_eval_samples: 200                     # Samples to use for ROUGE/BLEU eval
+
+# ── HuggingFace Hub Publishing ────────────────────────────
+hub:
+  push_to_hub: true
+  repo_id: "srinivas-gampasani/llama2-7b-domain-qlora"
+  private: true
+  commit_message: "LoRA adapter — domain fine-tune v1.0"
+  save_adapter_only: true                   # Push only LoRA weights (much smaller)
+
+# ── W&B Experiment Tracking ───────────────────────────────
+wandb:
+  project: "llm-finetuning-pipeline"
+  entity: null                              # Your W&B username / team
+  tags:
+    - "qlora"
+    - "llama2"
+    - "peft"
+    - "domain-adaptation"
+  notes: "QLoRA 4-bit fine-tune on domain dataset"
+
+# ── Inference / Deployment ────────────────────────────────
+inference:
+  merge_adapter: false                      # Merge LoRA into base weights before serving
+  quantize_merged: true                     # GPTQ/AWQ quantize after merge
+  serve_port: 8080
+  max_concurrent_requests: 4
+  vllm_enabled: false                       # Use vLLM for high-throughput serving

@@ -1,0 +1,40 @@
+# ============================================================
+#  LLM Fine-Tuning Pipeline — Requirements
+#  Python 3.10+  |  CUDA 11.8+ recommended
+# ============================================================
+
+# Core training
+torch>=2.0.0
+transformers>=4.40.0
+peft>=0.10.0
+datasets>=2.18.0
+accelerate>=0.29.0
+bitsandbytes>=0.43.0       # 4-bit / 8-bit quantization
+
+# Evaluation
+rouge-score>=0.1.2
+nltk>=3.8.1
+bert-score>=0.3.13
+
+# Experiment tracking
+wandb>=0.16.0
+
+# API serving
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+pydantic>=2.6.0
+
+# Hub publishing
+huggingface_hub>=0.22.0
+
+# Config & utils
+pyyaml>=6.0.1
+python-dotenv>=1.0.1
+tqdm>=4.66.0
+numpy>=1.24.0
+scipy>=1.11.0
+
+# Notebooks (optional)
+jupyter>=1.0.0
+ipywidgets>=8.1.0
+matplotlib>=3.8.0

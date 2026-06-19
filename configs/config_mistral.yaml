@@ -1,0 +1,96 @@
+# ============================================================
+#  Config variant: Mistral 7B + QLoRA
+# ============================================================
+
+model:
+  name: "mistralai/Mistral-7B-v0.1"
+  revision: "main"
+  trust_remote_code: false
+  torch_dtype: "bfloat16"
+  device_map: "auto"
+
+quantization:
+  enabled: true
+  bits: 4
+  quant_type: "nf4"
+  double_quant: true
+  compute_dtype: "bfloat16"
+
+lora:
+  r: 32
+  alpha: 64
+  dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "k_proj"
+    - "v_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+data:
+  train_file: "data/train.jsonl"
+  val_file: "data/val.jsonl"
+  test_file: "data/test.jsonl"
+  text_column: "text"
+  max_seq_length: 4096           # Mistral supports longer context
+  dataset_format: "instruction"
+  prompt_template: "mistral"
+  pack_sequences: true
+
+training:
+  output_dir: "outputs/mistral-checkpoints"
+  num_train_epochs: 3
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 8
+  gradient_checkpointing: true
+  learning_rate: 1.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.05
+  weight_decay: 0.001
+  max_grad_norm: 0.3
+  bf16: true
+  fp16: false
+  optim: "paged_adamw_32bit"
+  logging_steps: 10
+  eval_steps: 50
+  save_steps: 50
+  save_total_limit: 2
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  report_to: "wandb"
+  run_name: "mistral-7b-qlora-domain"
+  seed: 42
+  group_by_length: true
+
+evaluation:
+  metrics:
+    - "rouge"
+    - "bleu"
+    - "bertscore"
+    - "perplexity"
+  generation:
+    max_new_tokens: 512
+    temperature: 0.1
+    top_p: 0.95
+    do_sample: false
+    repetition_penalty: 1.1
+  num_eval_samples: 200
+
+hub:
+  push_to_hub: true
+  repo_id: "srinivas-gampasani/mistral-7b-domain-qlora"
+  private: true
+  commit_message: "Mistral QLoRA adapter v1.0"
+  save_adapter_only: true
+
+wandb:
+  project: "llm-finetuning-pipeline"
+  tags:
+    - "qlora"
+    - "mistral"
+    - "peft"

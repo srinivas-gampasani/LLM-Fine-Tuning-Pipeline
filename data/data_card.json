@@ -1,0 +1,20 @@
+{
+  "dataset_name": "domain-instruction-tuning",
+  "description": "Medical and AI/ML domain instruction-following",
+  "splits": {
+    "train": 800,
+    "val": 100,
+    "test": 100
+  },
+  "format": "alpaca",
+  "columns": [
+    "instruction",
+    "input",
+    "output"
+  ],
+  "sources": [
+    "clinical guidelines",
+    "pharmacology",
+    "ML papers"
+  ]
+}
