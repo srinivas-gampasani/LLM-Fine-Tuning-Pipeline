@@ -282,6 +282,7 @@ The pipeline auto-generates a model card with:
 ---
 
 
-*Built by Srinivas Gampasani | Data Scientist, Gen AI & ML Engineer | USA*
-[LinkedIn](https://www.linkedin.com/in/srinivasgampasani/) · [GitHub](https://github.com/srinivas-gampasani)
+
 *Based on: LoRA (Hu et al. 2021) · QLoRA (Dettmers et al. 2023) · PEFT (HuggingFace)*
+**Built by Srinivas Gampasani | Data Scientist, Gen AI & ML Engineer | USA**  
+[LinkedIn](https://www.linkedin.com/in/srinivasgampasani/) · [GitHub](https://github.com/srinivas-gampasani)
